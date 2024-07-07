@@ -14,10 +14,10 @@
             </div>
         </div>
         <div class='navbar-nav w-100'>
-            <a href='../Dashboard/' class='nav-item nav-link'><i class='fa fa-tachometer-alt me-2'></i>Dashboard</a>
+            <a href='dashboard.php' class='nav-item nav-link'><i class='fa fa-tachometer-alt me-2'></i>Dashboard</a>
 
-            <a href='#' class='nav-item nav-link'><i class='fa fa-th me-2'></i>Clientes</a>
-            <a href='#' class='nav-item nav-link'><i class='fa fa-th me-2'></i>Productos</a>
+            <a href='clientes.php' class='nav-item nav-link'><i class='fa fa-th me-2'></i>Clientes</a>
+            <a href='producto.php' class='nav-item nav-link'><i class='fa fa-th me-2'></i>Productos</a>
 
 
 

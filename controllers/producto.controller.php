@@ -6,56 +6,83 @@ require_once('../models/producto.model.php');
 $producto = new Clase_Producto();
 $metodo = $_SERVER['REQUEST_METHOD'];
 
-switch ($metodo) {
-    case "GET":
-        if (isset($_GET['id'])) {
-            $uno = $producto->uno($_GET['id']);
-            echo json_encode(mysqli_fetch_assoc($uno));
+switch ($_GET["op"]) {
+    /*TODO: Procedimiento para listar todos los registros */
+    case 'todos':
+        $datos = array();
+        $datos = $producto->todos();
+        $todos = array();
+        while ($row = mysqli_fetch_assoc($datos)) {
+            $todos[] = $row;
+        }
+        echo json_encode($todos);
+        break;
+        
+    /*TODO: Procedimiento para sacar un registro */
+    case 'uno':
+        if (isset($_GET["id"])) {
+            $idProducto = intval($_GET["id"]);
+            $datos = $producto->uno($idProducto);
+            echo json_encode($datos); // Devuelve los datos del usuario en formato JSON
         } else {
-            $datos = $producto->todos();
-            $todos = array();
-            while($fila = mysqli_fetch_assoc($datos)) {
-                array_push($todos, $fila);
-            }
-            echo json_encode($todos);
+            echo json_encode(array("message" => "ID no proporcionado"));
         }
         break;
 
-    case "POST":
-        $datos = json_decode(file_get_contents('php://input'));
-        if (!empty($datos->nombre) && !empty($datos->precio) && !empty($datos->stock)) {
-            $insertar = $producto->Insertar($datos->nombre, $datos->precio, $datos->stock);
-            echo json_encode(array("Message" => "Insertado Correctamente"));
-        } else {
-            echo json_encode(array("Message" => "Error, Faltan Datos"));
-        }
-        break;
-
-    case "PUT":
-        $datos = json_decode(file_get_contents('php://input'));
-        if (isset($_GET['id'])) {
-            $id = $_GET['id'];
-            if (!empty($datos->$id) || !empty($datos->nombre) || !empty($datos->precio) || !empty($datos->stock)) {
-                try {
-                    $actualizar = array();
-                    $actualizar = $producto->actualizar($id, $datos->nombre, $datos->precio, $datos->stock);
-                    echo json_encode(array("Message" => "Actualizado Correctamente"));
-                } catch (Exception $th) {
-                    echo json_encode(array("Message" => "Error, No se pudo actualizar"));
-                }
+        
+    /*TODO: Procedimiento para insertar */
+    case 'insertar':
+        $Nombre = $_POST["Nombre"] ?? null;
+        $Precio = $_POST["Precio"] ?? null;
+        $Stock = $_POST["Stock"] ?? null;
+        
+        if ($Nombre && $Precio && $Stock) {
+            $insertar = $producto->insertar($Nombre, $Precio, $Stock);
+            if ($insertar == 0) {
+                echo json_encode(array("message" => "Insertado correctamente"));
             } else {
-                echo json_encode(array("Message" => "Error, Faltan Datos"));
+                echo json_encode(array("message" => "Error al insertar"));
             }
+        } else {
+            echo json_encode(array("message" => "Error, faltan datos"));
+        }
+        break;
+        
+    /*TODO: Procedimiento para actualizar */
+    case 'actualizar':
+        $ProductoId = $_POST["ProductoId"] ?? null;
+        $Nombre = $_POST["Nombre"] ?? null;
+        $Precio = $_POST["Precio"] ?? null;
+        $Stock = $_POST["Stock"] ?? null;
+        
+        if ($ProductoId && $Nombre && $Precio && $Stock) {
+            $actualizar = $producto->actualizar($ProductoId, $Nombre, $Precio, $Stock);
+            if ($actualizar) {
+                echo json_encode(array("message" => "Actualizado correctamente"));
+            } else {
+                echo json_encode(array("message" => "Error al actualizar"));
+            }
+        } else {
+            echo json_encode(array("message" => "Error, faltan datos"));
+        }
+        break;
+        
+    /*TODO: Procedimiento para eliminar */
+    case 'eliminar':
+        if (isset($_POST["idProducto"])) {
+            $idProducto = intval($_POST["idProducto"]);
+            $eliminar = $producto->eliminar($idProducto);
+            if ($eliminar) {
+                echo json_encode(array("message" => "Eliminado correctamente"));
+            } else {
+                echo json_encode(array("message" => "Error al eliminar"));
+            }
+        } else {
+            echo json_encode(array("message" => "ID no proporcionado"));
         }
         break;
 
-    case "DELETE":
-        if(isset($_GET['id'])){
-            $datos = $producto->eliminar($_GET['id']);
-            echo json_encode(array('message' => 'Eliminado correctamente'));
-        }else{
-            echo json_encode(array('message' => 'El id es obligatorio'));
-        }
-    break;
-
+    default:
+        echo json_encode(array("message" => "Operación no válida"));
+        break;
 }

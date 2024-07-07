@@ -24,9 +24,10 @@ class Clase_Cliente {
         $stmt = $con->prepare($cadena);
         $stmt->bind_param('i', $idCliente);
         $stmt->execute();
-        $datos = $stmt->get_result();
-        return $datos;
+        $datos = $stmt->get_result()->fetch_assoc(); 
         $con->close(); 
+        
+        return $datos;
     }
 
     public function Insertar($nombre, $apellido , $email, $telefono)

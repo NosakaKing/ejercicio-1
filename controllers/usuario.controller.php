@@ -4,54 +4,88 @@ require_once('../config/cors.php');
 require_once('../models/usuario.model.php');
 
 $usuario = new Clase_Usuario();
-$metodo = $_SERVER['REQUEST_METHOD'];
 
-switch ($metodo) {
-    case "GET":
-        if (isset($_GET['id'])) {
-            $uno = $usuario->uno($_GET['id']);
-            echo json_encode(mysqli_fetch_assoc($uno));
-        } else {
-            $datos = $usuario->todos();
-            $todos = array();
-            while($fila = mysqli_fetch_assoc($datos)) {
-                array_push($todos, $fila);
-            }
-            echo json_encode($todos);
+switch ($_GET["op"]) {
+    /*TODO: Procedimiento para listar todos los registros */
+    case 'todos':
+        $datos = array();
+        $datos = $usuario->todos();
+        $todos = array();
+        while ($row = mysqli_fetch_assoc($datos)) {
+            $todos[] = $row;
         }
+        echo json_encode($todos);
         break;
-
-    case "PUT":
-        $datos = json_decode(file_get_contents('php://input'));
-        if (isset($_GET['id'])) {
-            $id = $_GET['id'];
-            if (!empty($datos->$id) || !empty($datos->nombre) || !empty($datos->apellido) || !empty($datos->correo) || !empty($datos->password)) {
-                try {
-                    $actualizar = array();
-                    $actualizar = $usuario->actualizar($id, $datos->nombre, $datos->apellido, $datos->correo, $datos->password);
-                } catch (Exception $th) {
-                    echo json_encode(array("Message" => "Error, No se pudo actualizar"));
-                }
+        
+    /*TODO: Procedimiento para sacar un registro */
+    case 'uno':
+    if (isset($_GET["id"])) {
+        $idUsuarios = intval($_GET["id"]);
+        $datos = $usuario->uno($idUsuarios);
+        echo json_encode($datos); // Devuelve los datos del usuario en formato JSON
+    } else {
+        echo json_encode(array("message" => "ID no proporcionado"));
+    }
+    break;
+        
+    /*TODO: Procedimiento para insertar */
+    case 'insertar':
+        $Nombre = $_POST["Nombre"] ?? null;
+        $Apellidos = $_POST["Apellido"] ?? null;
+        $correo = $_POST["correo"] ?? null;
+        $password = $_POST["password"] ?? null;
+        
+        if ($Nombre && $Apellidos && $correo && $password) {
+            $insertar = $usuario->insertar($Nombre, $Apellidos, $correo, $password);
+            if ($insertar == 0) {
+                echo json_encode(array("message" => "Insertado correctamente"));
             } else {
-                echo json_encode(array("Message" => "Error, Faltan Datos"));
+                echo json_encode(array("message" => "Error al insertar"));
             }
-        }
-        break;
-
-    case "DELETE":
-        if (isset($_GET['id'])) {
-            $datos = $usuario->eliminar($_GET['id']);
         } else {
-            echo json_encode(array('message' => 'El id es obligatorio'));
+            echo json_encode(array("message" => "Error, faltan datos"));
         }
         break;
-
-    case "POST":
-        if (isset($_GET["op"]) && $_GET["op"] == "login") {
-            if (empty(trim($_POST["correo"])) || empty(trim($_POST["contrasenia"]))) {
-                header('Location: ../index.php?op=2');
-                exit();
+        
+    /*TODO: Procedimiento para actualizar */
+    case 'actualizar':
+        $UsuarioId = $_POST["UsuarioId"] ?? null;
+        $Nombre = $_POST["Nombre"] ?? null;
+        $Apellidos = $_POST["Apellido"] ?? null;
+        $correo = $_POST["correo"] ?? null;
+        $password = $_POST["password"] ?? null;
+        
+        if ($UsuarioId && $Nombre && $Apellidos && $correo && $password) {
+            $actualizar = $usuario->actualizar($UsuarioId, $Nombre, $Apellidos, $correo, $password);
+            if ($actualizar) {
+                echo json_encode(array("message" => "Actualizado correctamente"));
+            } else {
+                echo json_encode(array("message" => "Error al actualizar"));
             }
+        } else {
+            echo json_encode(array("message" => "Error, faltan datos"));
+        }
+        break;
+        
+    /*TODO: Procedimiento para eliminar */
+    case 'eliminar':
+        if (isset($_POST["idUsuarios"])) {
+            $idUsuarios = intval($_POST["idUsuarios"]);
+            $eliminar = $usuario->eliminar($idUsuarios);
+            if ($eliminar) {
+                echo json_encode(array("message" => "Eliminado correctamente"));
+            } else {
+                echo json_encode(array("message" => "Error al eliminar"));
+            }
+        } else {
+            echo json_encode(array("message" => "ID no proporcionado"));
+        }
+        break;
+    
+
+    /*TODO: Procedimiento para login */
+    case 'login':
+        if (!empty(trim($_POST["correo"])) && !empty(trim($_POST["contrasenia"]))) {
             $correo = $_POST["correo"];
             $contrasena = $_POST["contrasenia"];
 
@@ -70,17 +104,12 @@ switch ($metodo) {
                 exit();
             }
         } else {
-            $datos = json_decode(file_get_contents('php://input'));
-            if (!empty($datos->nombre) && !empty($datos->apellido) && !empty($datos->correo) && !empty($datos->password)) {
-                $insertar = $usuario->Insertar($datos->nombre, $datos->apellido, $datos->correo, $datos->password);
-                echo json_encode(array("Message" => "Insertado Correctamente"));
-            } else {
-                echo json_encode(array("Message" => "Error, Faltan Datos"));
-            }
+            header('Location: ../index.php?op=2');
+            exit();
         }
         break;
 
     default:
-        echo json_encode(array("Message" => "Método no soportado"));
+        echo json_encode(array("message" => "Operación no válida"));
         break;
 }

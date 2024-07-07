@@ -24,7 +24,7 @@ class Clase_Producto {
         $stmt = $con->prepare($cadena);
         $stmt->bind_param('i', $idProducto);
         $stmt->execute();
-        $datos = $stmt->get_result();
+        $datos = $stmt->get_result()->fetch_assoc(); 
         return $datos;
         $con->close(); 
     }

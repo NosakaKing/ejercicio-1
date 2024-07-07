@@ -6,56 +6,85 @@ require_once('../models/cliente.model.php');
 $cliente = new Clase_Cliente();
 $metodo = $_SERVER['REQUEST_METHOD'];
 
-switch ($metodo) {
-    case "GET":
-        if (isset($_GET['id'])) {
-            $uno = $cliente->uno($_GET['id']);
-            echo json_encode(mysqli_fetch_assoc($uno));
-        } else {
-            $datos = $cliente->todos();
-            $todos = array();
-            while($fila = mysqli_fetch_assoc($datos)) {
-                array_push($todos, $fila);
-            }
-            echo json_encode($todos);
+switch ($_GET["op"]) {
+    /*TODO: Procedimiento para listar todos los registros */
+    case 'todos':
+        $datos = array();
+        $datos = $cliente->todos();
+        $todos = array();
+        while ($row = mysqli_fetch_assoc($datos)) {
+            $todos[] = $row;
         }
+        echo json_encode($todos);
         break;
-
-    case "POST":
-        $datos = json_decode(file_get_contents('php://input'));
-        if (!empty($datos->nombre) && !empty($datos->apellido) && !empty($datos->email) && !empty($datos->telefono)) {
-            $insertar = $cliente->Insertar($datos->nombre, $datos->apellido, $datos->email, $datos->telefono);
-            echo json_encode(array("Message" => "Insertado Correctamente"));
-        } else {
-            echo json_encode(array("Message" => "Error, Faltan Datos"));
-        }
-        break;
-
-    case "PUT":
-        $datos = json_decode(file_get_contents('php://input'));
-        if (isset($_GET['id'])) {
-            $id = $_GET['id'];
-            if (!empty($datos->$id) || !empty($datos->nombre) || !empty($datos->apellido) || !empty($datos->email) || !empty($datos->telefono)) {
-                try {
-                    $actualizar = array();
-                    $actualizar = $cliente->actualizar($id, $datos->nombre, $datos->apellido, $datos->email, $datos->telefono);
-                    echo json_encode(array("Message" => "Actualizado Correctamente"));
-                } catch (Exception $th) {
-                    echo json_encode(array("Message" => "Error, No se pudo actualizar"));
-                }
-            } else {
-                echo json_encode(array("Message" => "Error, Faltan Datos"));
-            }
-        }
-        break;
-
-    case "DELETE":
-        if(isset($_GET['id'])){
-            $datos = $cliente->eliminar($_GET['id']);
-            echo json_encode(array('message' => 'Eliminado correctamente'));
-        }else{
-            echo json_encode(array('message' => 'El id es obligatorio'));
-        }
+        
+    /*TODO: Procedimiento para sacar un registro */
+    case 'uno':
+    if (isset($_GET["id"])) {
+        $idCliente = intval($_GET["id"]);
+        $datos = $cliente->uno($idCliente);
+        echo json_encode($datos); // Devuelve los datos del usuario en formato JSON
+    } else {
+        echo json_encode(array("message" => "ID no proporcionado"));
+    }
     break;
+        
+    /*TODO: Procedimiento para insertar */
+    case 'insertar':
+        $Nombre = $_POST["Nombre"] ?? null;
+        $Apellidos = $_POST["Apellido"] ?? null;
+        $email = $_POST["correo"] ?? null;
+        $telefono = $_POST["telefono"] ?? null;
+        
+        if ($Nombre && $Apellidos && $email && $telefono) {
+            $insertar = $cliente->insertar($Nombre, $Apellidos, $email, $telefono);
+            if ($insertar == 0) {
+                echo json_encode(array("message" => "Insertado correctamente"));
+            } else {
+                echo json_encode(array("message" => "Error al insertar"));
+            }
+        } else {
+            echo json_encode(array("message" => "Error, faltan datos"));
+        }
+        break;
+        
+    /*TODO: Procedimiento para actualizar */
+    case 'actualizar':
+        $UsuarioId = $_POST["UsuarioId"] ?? null;
+        $Nombre = $_POST["Nombre"] ?? null;
+        $Apellidos = $_POST["Apellido"] ?? null;
+        $email = $_POST["correo"] ?? null;
+        $telefono = $_POST["telefono"] ?? null;
+        
+        if ($UsuarioId && $Nombre && $Apellidos && $email && $telefono) {
+            $actualizar = $cliente->actualizar($UsuarioId, $Nombre, $Apellidos, $email, $telefono);
+            if ($actualizar) {
+                echo json_encode(array("message" => "Actualizado correctamente"));
+            } else {
+                echo json_encode(array("message" => "Error al actualizar"));
+            }
+        } else {
+            echo json_encode(array("message" => "Error, faltan datos"));
+        }
+        break;
+    
+        
+    /*TODO: Procedimiento para eliminar */
+    case 'eliminar':
+        if (isset($_POST["idUsuarios"])) {
+            $idUsuarios = intval($_POST["idUsuarios"]);
+            $eliminar = $cliente->eliminar($idUsuarios);
+            if ($eliminar) {
+                echo json_encode(array("message" => "Eliminado correctamente"));
+            } else {
+                echo json_encode(array("message" => "Error al eliminar"));
+            }
+        } else {
+            echo json_encode(array("message" => "ID no proporcionado"));
+        }
+        break;
 
+    default:
+        echo json_encode(array("message" => "Operación no válida"));
+        break;
 }

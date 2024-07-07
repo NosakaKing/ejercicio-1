@@ -19,15 +19,17 @@ class Clase_Usuario {
     {
         $con = new Clase_Conectar();
         $con = $con->Procedimiento_Conectar();
-
+    
         $cadena = "SELECT UsuarioId, nombre, apellido, correo, password FROM usuarios WHERE UsuarioId = ?";
         $stmt = $con->prepare($cadena);
         $stmt->bind_param('i', $idUsuarios);
         $stmt->execute();
-        $datos = $stmt->get_result();
-        return $datos;
+        $datos = $stmt->get_result()->fetch_assoc(); 
         $con->close(); 
+        
+        return $datos;
     }
+    
 
     public function Insertar($nombre, $apellido , $correo, $password)
     {
@@ -51,10 +53,11 @@ class Clase_Usuario {
     {
         $con = new Clase_Conectar();
         $con = $con->Procedimiento_Conectar();
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         $cadena = "UPDATE usuarios SET nombre = ?, apellido = ?,  correo = ?, password = ? WHERE UsuarioId = ?";
         $stmt = $con->prepare($cadena);
-        $stmt->bind_param('ssssi', $nombre, $apellido,  $correo, $password, $idUsuarios);
+        $stmt->bind_param('ssssi', $nombre, $apellido,  $correo, $hashedPassword, $idUsuarios);
 
         if ($stmt->execute()) {
             return $idUsuarios;

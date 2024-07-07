@@ -117,12 +117,12 @@
             <!-- Recent Sales Start -->
             <div class='container-fluid pt-4 px-4'>
                 <button type="button" class="btn btn-primary " data-bs-toggle="modal" data-bs-target="#modalUsuario">
-                    Nuevo Usuario
+                    Nuevo Clientes
                 </button>
                 <div class='d-flex align-items-center justify-content-between mb-4'>
 
 
-                    <h6 class='mb-0'> Lista de usuarios</h6>
+                    <h6 class='mb-0'> Lista de Clientes</h6>
                     <br>
 
 
@@ -133,7 +133,8 @@
                                 <th>#</th>
                                 <th>Nombre</th>
                                 <th>Apellido</th>
-                                <th>Correo</th>
+                                <th>email</th>
+                                <th>telefono</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -173,7 +174,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Nuevo Usuario</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Nuevo Cliente</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="frm_usuarios">
@@ -191,12 +192,14 @@
                             <input type="text" name="Apellido" id="Apellido" placeholder="Ingrese su apellido" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label for="correo">Correo</label>
+                            <label for="correo">Email</label>
                             <input type="email" name="correo" id="correo" placeholder="Ingrese su correo" class="form-control" required>
                         </div>
-                        <div class="form-group">
-                            <label for="password">Clave</label>
-                            <input type="password" name="password" id="password" placeholder="Ingrese su contrasenia" class="form-control" required>
+                        <div class="form-group
+                        ">
+                            <label for="telefono">Telefono</label>
+                            <input type="text" name="telefono" id="telefono" placeholder="Ingrese su telefono" class="form-control" required>
+                        
                         </div>
 
 
@@ -212,9 +215,10 @@
         </div>
     </div>
 
+
     <!-- JavaScript Libraries -->
     <?php require_once('./html/scripts.php') ?>
-    <script src="dashboard.js"></script>
+    <script src="clientes.js"></script>
 
 
 
